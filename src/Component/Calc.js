@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
-import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
+// import { faCheckCircle } from "@fortawesome/free-solid-svg-icons";
 import ngnflag from "../assets/flags/nigeria.svg";
 
 import jpyflag from "../assets/flags/japan.svg";
@@ -10,6 +10,7 @@ import jpyflag from "../assets/flags/japan.svg";
 import btcflag from "../assets/flags/btc.svg";
 import usdcflag from "../assets/flags/usdc.svg";
 import { Modal, ModalHeader, ModalBody } from "reactstrap";
+import axios from 'axios';
 
 export default class Calc extends Component {
   state = {
@@ -20,7 +21,32 @@ export default class Calc extends Component {
     defaultValue:1000,
     modalone: false,
     modaltwo: false,
+    BTCPrice:'',
+    USDCPrice:''
   };
+  componentDidMount(){
+    axios.get("https://api.nomics.com/v1/currencies/ticker?key=faad65ad538a46ad1a3a66a3db9b6386&ids=BTC,USDC,USD,JPY")
+    .then((res)=>{
+      let BTCPrice= res.data['0']['price']
+      let USDCPrice=res.data['1']['price']
+
+      this.setState({
+        BTCPrice:BTCPrice,
+        USDCPrice:USDCPrice
+      })
+      console.log(res)
+    })
+    .catch((err)=>{
+      console.log(err)
+    })
+    axios.get("https://api.nomics.com/v1/exchange-rates?key=faad65ad538a46ad1a3a66a3db9b6386&ids=USD,JPY")
+    .then((res)=>{
+      console.log(res)
+    })
+    .catch(()=>{
+
+    })
+  }
   toggleModalOne = () => {
     this.setState({ modalone: !this.state.modalone });
   };
