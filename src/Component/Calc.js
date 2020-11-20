@@ -6,47 +6,93 @@ import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import ngnflag from "../assets/flags/nigeria.svg";
 
 import jpyflag from "../assets/flags/japan.svg";
-
+import usdflag from "../assets/flags/usa.svg";
 import btcflag from "../assets/flags/btc.svg";
 import usdcflag from "../assets/flags/usdc.svg";
 import { Modal, ModalHeader, ModalBody } from "reactstrap";
-import axios from 'axios';
+import axios from "axios";
 
 export default class Calc extends Component {
   state = {
-    ButtonValueOne: "USDC",
+    ButtonValueOne: "JPY",
     ButtonValueTwo: "NGN",
-    ButtonFlagOne: usdcflag,
+    ButtonFlagOne: jpyflag,
     ButtonFlagTwo: ngnflag,
-    defaultValue:1000,
+    defaultValue: 1000,
     modalone: false,
     modaltwo: false,
-    BTCPrice:'',
-    USDCPrice:''
+    BTCPrice: "",
+    USDCPrice: "",
+    realtimePrice: "",
+    realTimePriceTwo: 350,
+    result: "",
   };
-  componentDidMount(){
-    axios.get("https://api.nomics.com/v1/currencies/ticker?key=faad65ad538a46ad1a3a66a3db9b6386&ids=BTC,USDC,USD,JPY")
-    .then((res)=>{
-      let BTCPrice= res.data['0']['price']
-      let USDCPrice=res.data['1']['price']
+  componentDidMount() {
+    // axios.get("https://api.nomics.com/v1/currencies/ticker?key=faad65ad538a46ad1a3a66a3db9b6386&ids=BTC,USDC,USD,JPY")
+    // .then((res)=>{
+    //   let BTCPrice= (Number(res.data['0']['price'])).toFixed(3)
+    //   let USDCPrice=res.data['1']['price']
+    //   let RealTimePrice=(Number(res.data['1']['price'])).toFixed(3)
 
-      this.setState({
-        BTCPrice:BTCPrice,
-        USDCPrice:USDCPrice
+    //   this.setState({
+    //     BTCPrice:BTCPrice,
+    //     USDCPrice:USDCPrice,
+    //     realtimePrice:RealTimePrice
+    //   })
+
+    // })
+    // .catch((err)=>{
+    //   console.log(err)
+    // })
+
+    axios
+      .get(
+        `https://free.currconv.com/api/v7/convert?q=${this.state.ButtonValueOne}_${this.state.ButtonValueTwo}&compact=ultra&apiKey=9509b95cfecfc65f9740`
+      )
+
+      .then((res) => {
+        let RealTimePrice = Number(Object.values(res.data)[0]).toFixed(4);
+        let result = Number(this.state.defaultValue * RealTimePrice).toFixed(2);
+        // console.log(result)
+        this.setState({
+          result: result,
+          realtimePrice: RealTimePrice,
+        });
+        // console.log(res)
       })
-      console.log(res)
-    })
-    .catch((err)=>{
-      console.log(err)
-    })
-    axios.get("https://api.nomics.com/v1/exchange-rates?key=faad65ad538a46ad1a3a66a3db9b6386&ids=USD,JPY")
-    .then((res)=>{
-      console.log(res)
-    })
-    .catch(()=>{
-
-    })
+      .catch((err) => {
+        console.log(err);
+      });
+    console.log(this.state.realTimePrice);
+    this.calculate();
   }
+
+  calculate = () => {
+    if (this.state.defaultValue === isNaN) {
+      return;
+    } else {
+      const result = this.state.defaultValue * this.state.realtimePrice;
+      //   axios.get(`https://api.nomics.com/v1/currencies/ticker?key=faad65ad538a46ad1a3a66a3db9b6386&ids=${this.state.ButtonValueOne}`)
+      //   .then((res)=>{
+      //     const result = (res.data['0']['price'] * this.state.defaultValue).toFixed(2)
+      //     console.log(result)
+      this.setState({
+        result: result,
+      });
+      //   })
+      // }
+      console.log(this.state.result);
+    }
+  };
+  CalcBTC = () => {
+    let realTimePrice = this.state.BTCPrice;
+    let result = Number(this.state.defaultValue * realTimePrice);
+    // console.log(result)
+    this.setState({
+      result: result,
+    });
+  };
+
   toggleModalOne = () => {
     this.setState({ modalone: !this.state.modalone });
   };
@@ -54,23 +100,50 @@ export default class Calc extends Component {
     this.setState({ modaltwo: !this.state.modaltwo });
   };
 
-    handleSelect=(e)=>{
-      this.setState({
-        [e.target.name]:e.target.value
-      })
-      
-    }
-    handleInput=(e)=>{
-      this.setState({
-        defaultValue:e.target.value
-      })
-      
-    }
+  handleSelect = (e) => {
+    this.setState({
+      [e.target.name]: e.target.value,
+    });
+  };
+  handleInput = (e) => {
+    this.setState({
+      defaultValue: e.target.value,
+    });
+    this.calculate();
+  };
+
   JPYButtonOneSelect = () => {
     this.setState({
       ButtonValueOne: "JPY",
       ButtonFlagOne: jpyflag,
     });
+    const waitTime = 1000;
+    setTimeout(
+      () =>
+        axios({
+          method: "get",
+          url: `https://free.currconv.com/api/v7/convert?q=${this.state.ButtonValueOne}_${this.state.ButtonValueTwo}&compact=ultra&apiKey=9509b95cfecfc65f9740`,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((res) => {
+            let RealTimePrice = Number(Object.values(res.data)[0]).toFixed(4);
+            let result = Number(
+              this.state.defaultValue * RealTimePrice
+            ).toFixed(2);
+
+            this.setState({
+              result: result,
+              realtimePrice: RealTimePrice,
+            });
+            console.log(res);
+          })
+          .catch((err) => {
+            console.log(err);
+          }),
+      waitTime
+    );
   };
   JPYButtonTwoSelect = () => {
     this.setState({
@@ -79,15 +152,21 @@ export default class Calc extends Component {
     });
   };
   BTCButtonOneSelect = () => {
+    let RealTimeBTCPrice = this.state.BTCPrice;
+
     this.setState({
       ButtonValueOne: "BTC",
       ButtonFlagOne: btcflag,
+      realtimePrice: RealTimeBTCPrice,
     });
+    this.CalcBTC();
   };
   BTCButtonTwoSelect = () => {
+    let RealTimeBTCPrice = this.state.BTCPrice;
     this.setState({
       ButtonValueTwo: "BTC",
       ButtonFlagTwo: btcflag,
+      realtimePrice: RealTimeBTCPrice,
     });
   };
   USDCButtonOneSelect = () => {
@@ -107,27 +186,94 @@ export default class Calc extends Component {
       ButtonValueOne: "NGN",
       ButtonFlagOne: ngnflag,
     });
+    const waitTime = 1000;
+    setTimeout(
+      () =>
+        axios({
+          method: "get",
+          url: `https://free.currconv.com/api/v7/convert?q=${this.state.ButtonValueOne}_${this.state.ButtonValueTwo}&compact=ultra&apiKey=9509b95cfecfc65f9740`,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((res) => {
+            console.log(this.state.ButtonValueOne);
+            let RealTimePrice = Number(Object.values(res.data)[0]).toFixed(4);
+            let result = Number(
+              this.state.defaultValue * RealTimePrice
+            ).toFixed(2);
+            console.log(result);
+            this.setState({
+              result: result,
+              realtimePrice: RealTimePrice,
+            });
+            console.log(res);
+          })
+          .catch((err) => {
+            console.log(err);
+          }),
+      waitTime
+    );
   };
+
   NGNButtonTwoSelect = () => {
     this.setState({
       ButtonValueTwo: "NGN",
       ButtonFlagTwo: ngnflag,
     });
   };
+  USDButtonOneSelect = () => {
+    this.setState({
+      ButtonValueOne: "USD",
+      ButtonFlagOne: usdflag,
+    });
+    const waitTime = 1000;
+    setTimeout(
+      () =>
+        axios({
+          method: "get",
+          url: `https://free.currconv.com/api/v7/convert?q=${this.state.ButtonValueOne}_${this.state.ButtonValueTwo}&compact=ultra&apiKey=9509b95cfecfc65f9740`,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((res) => {
+            let RealTimePrice = Number(Object.values(res.data)[0]).toFixed(4);
+            let result = Number(
+              this.state.defaultValue * RealTimePrice
+            ).toFixed(2);
+            console.log(result);
+            this.setState({
+              result: result,
+              realtimePrice: RealTimePrice,
+            });
+            console.log(res);
+          })
+          .catch((err) => {
+            console.log(err);
+          }),
+      waitTime
+    );
+  };
+
+  USDButtonTwoSelect = () => {
+    this.setState({
+      ButtonValueTwo: "USD",
+      ButtonFlagTwo: usdflag,
+    });
+  };
 
   render() {
     return (
       <React.Fragment>
-      
         <SendSection>
-        
           <InputSection>
             <p>You send</p>
             <input
               type="number"
               value={this.state.defaultValue}
               onChange={this.handleInput}
-              autocomplete="off"
+              autoComplete="off"
               placeholder="1000"
             />
           </InputSection>
@@ -183,39 +329,48 @@ export default class Calc extends Component {
                 <img src={ngnflag} alt="Nigerian Flag" />
                 Nigerian Naira
               </li>
+              <li
+                onClick={() => {
+                  this.USDButtonOneSelect();
+                  this.toggleModalOne();
+                }}
+              >
+                <img src={usdflag} alt="America Flag" />
+                USD United States Dollar
+              </li>
             </ul>
           </ModalBody>
         </CurrencyModal>
 
-                <RatesSection>
-                <LineSection>
-                <StyledLine/>
-                </LineSection>
-                
-                <FixedRates className="my-auto">
-                <div style={{display:"flex"}}>
-                    <Amount>780,000</Amount>
-                    <AmountDesc>Transfer rate (Fixed)</AmountDesc>
-                  </div>
-                  <div style={{display:"flex"}}>
-                  
-                    <Amount>980,000</Amount>
-                    <AmountDesc>Amount We will convert</AmountDesc>
-                  </div>
-                  <div style={{display:"flex"}}>
-                    <Amount>780,000</Amount>
-                    <AmountDesc>Guaranteed Rates (10 mins)</AmountDesc>
-                  </div>
-                </FixedRates>
-                </RatesSection>
+        <RatesSection>
+          <LineSection>
+            <StyledLine />
+          </LineSection>
+
+          <FixedRates className="my-auto">
+            <div style={{ display: "flex" }}>
+              <Amount>780,000</Amount>
+              <AmountDesc>Transfer rate (Fixed)</AmountDesc>
+            </div>
+            <div style={{ display: "flex" }}>
+              <Amount>980,000</Amount>
+              <AmountDesc>Amount We will convert</AmountDesc>
+            </div>
+            <div style={{ display: "flex" }}>
+              <Amount>{this.state.realtimePrice}</Amount>
+              <AmountDesc>Guaranteed Rates (10 mins)</AmountDesc>
+            </div>
+          </FixedRates>
+        </RatesSection>
 
         <ReceiveSection>
           <OutputSection>
             <p>You receive</p>
             <input
               type="number"
-              autocomplete="off"
+              autoComplete="off"
               disable="true"
+              defaultValue={this.state.result}
             />
           </OutputSection>
           <StyledSelect>
@@ -226,8 +381,7 @@ export default class Calc extends Component {
             </StyledButton>
           </StyledSelect>
         </ReceiveSection>
-               
-                
+
         <OutputCurrencyModal
           isOpen={this.state.modaltwo}
           toggle={this.toggleModalTwo}
@@ -284,8 +438,7 @@ const SendSection = styled.div`
 `;
 const ReceiveSection = styled.div`
   display: flex;
-  margin-top:-15px;
- 
+  margin-top: -15px;
 `;
 const InputSection = styled.div`
   background-color: white;
@@ -462,43 +615,40 @@ const OutputCurrencyModal = styled(Modal)`
     max-height: 592px;
   }
 `;
-const RatesSection =styled.div `
-display:flex;
-margin-top:-15px;
-${'' /* align-items:center; */}
+const RatesSection = styled.div`
+  display: flex;
+  margin-top: -15px;
+  ${"" /* align-items:center; */}
+`;
+const LineSection = styled.div`
+  width: 10%;
+`;
+const StyledLine = styled.hr`
+  background-color: #2e4369;
+  height: 170px;
+  border: 1px solid #2e4369;
+  width: 1px;
 
-`
-const LineSection = styled.div `
-width:10%;
-
-`
-const StyledLine = styled.hr `
-background-color:#2e4369;
-height:170px;
-border: 1px solid #2e4369;
-width:1px;
-
-position:relative;
-z-index:0;
-`
-const FixedRates =styled.div `
-padding-top:15px;
-width:90%;
-
-`
-const Amount = styled.p `
-width:30%;
-color:white;
-:second-child{
-  color:#d3d5d8
-}
-`
-const AmountDesc = styled.p `
-color:#eaeaea;
-:second-child{
-  color:#d3d5d8;
-}
-:last-child(){
-  color:#00b9ff;
-}
-`
+  position: relative;
+  z-index: 0;
+`;
+const FixedRates = styled.div`
+  padding-top: 15px;
+  width: 90%;
+`;
+const Amount = styled.p`
+  width: 30%;
+  color: white;
+  :second-child {
+    color: #d3d5d8;
+  }
+`;
+const AmountDesc = styled.p`
+  color: #eaeaea;
+  :second-child {
+    color: #d3d5d8;
+  }
+  :last-child() {
+    color: #00b9ff;
+  }
+`;
