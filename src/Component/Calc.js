@@ -150,6 +150,33 @@ export default class Calc extends Component {
       ButtonValueTwo: "JPY",
       ButtonFlagTwo: jpyflag,
     });
+     const waitTime = 1000;
+    setTimeout(
+      () =>
+        axios({
+          method: "get",
+          url: `https://free.currconv.com/api/v7/convert?q=${this.state.ButtonValueOne}_${this.state.ButtonValueTwo}&compact=ultra&apiKey=9509b95cfecfc65f9740`,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((res) => {
+            let RealTimePrice = Number(Object.values(res.data)[0]).toFixed(4);
+            let result = Number(
+              this.state.defaultValue * RealTimePrice
+            ).toFixed(2);
+
+            this.setState({
+              result: result,
+              realtimePrice: RealTimePrice,
+            });
+            console.log(res);
+          })
+          .catch((err) => {
+            console.log(err);
+          }),
+      waitTime
+    );
   };
   BTCButtonOneSelect = () => {
     let RealTimeBTCPrice = this.state.BTCPrice;
@@ -221,6 +248,33 @@ export default class Calc extends Component {
       ButtonValueTwo: "NGN",
       ButtonFlagTwo: ngnflag,
     });
+    const waitTime = 1000;
+    setTimeout(
+      () =>
+        axios({
+          method: "get",
+          url: `https://free.currconv.com/api/v7/convert?q=${this.state.ButtonValueOne}_${this.state.ButtonValueTwo}&compact=ultra&apiKey=9509b95cfecfc65f9740`,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((res) => {
+            let RealTimePrice = Number(Object.values(res.data)[0]).toFixed(4);
+            let result = Number(
+              this.state.defaultValue * RealTimePrice
+            ).toFixed(2);
+
+            this.setState({
+              result: result,
+              realtimePrice: RealTimePrice,
+            });
+            console.log(res);
+          })
+          .catch((err) => {
+            console.log(err);
+          }),
+      waitTime
+    );
   };
   USDButtonOneSelect = () => {
     this.setState({
@@ -261,6 +315,33 @@ export default class Calc extends Component {
       ButtonValueTwo: "USD",
       ButtonFlagTwo: usdflag,
     });
+    const waitTime = 1000;
+    setTimeout(
+      () =>
+        axios({
+          method: "get",
+          url: `https://free.currconv.com/api/v7/convert?q=${this.state.ButtonValueOne}_${this.state.ButtonValueTwo}&compact=ultra&apiKey=9509b95cfecfc65f9740`,
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((res) => {
+            let RealTimePrice = Number(Object.values(res.data)[0]).toFixed(4);
+            let result = Number(
+              this.state.defaultValue * RealTimePrice
+            ).toFixed(2);
+
+            this.setState({
+              result: result,
+              realtimePrice: RealTimePrice,
+            });
+            console.log(res);
+          })
+          .catch((err) => {
+            console.log(err);
+          }),
+      waitTime
+    );
   };
 
   render() {
@@ -424,6 +505,15 @@ export default class Calc extends Component {
               >
                 <img src={ngnflag} alt="Nigerian Flag" />
                 Nigerian Naira
+              </li>
+              <li
+                onClick={() => {
+                  this.USDButtonTwoSelect();
+                  this.toggleModalTwo();
+                }}
+              >
+                <img src={usdflag} alt="America Flag" />
+                USD United States Dollar
               </li>
             </ul>
           </ModalBody>
